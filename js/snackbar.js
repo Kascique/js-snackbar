@@ -1,72 +1,45 @@
-$("#actionSnac").click(function(){
-  //creating a snackbar
-  let snackbar  = new SnackBar;
-  snackbar.make("action", 
-  [
-    "Unable to connect to server",
-    "retry",
-    "bottom",
-    "right"
-  ], null);
-  //listening for the action
-  snackbar.action(function(state){
-    //alerting the state for testing purposes
-    if(state){
-      alert("true");
-    }
-    snackbar.close();
-  });
-});
-
-$("#messSnac").click(function(){
-   let snackbar  = new SnackBar;
-    snackbar.make("message", 
-  [
-    "Unable to connect the server",
-    null,
-    "bottom",
-    "center"
-  ], 4000);
-});
-                       
-
-
-///this is the snackbar class, this code is not to be edited 
-
 class SnackBar{
-  make(type, snack_array, time){
-     var snack_message = snack_array[0];
-     var snack_action = snack_array[1];
-     var snack_class = "snackbar "+type+" ";
-     if(snack_array[2] == ""|| snack_array[3] == ""){
-       snack_array[2] = "bottom";
-       snack_array[3] = "center";
-     }
-
-    snack_class += snack_array[2]+" "+snack_array[3];
+  constructor(){
+    this.class = 'snackbar';
+  }
+  make(data){
+     var snack_class = this.class+" "+data.type+" ";
+    
+    if(!data.position){
+      data["position"] = {
+        vertical: 'bottom',
+        horizontal: 'center'
+      }
+    }
+    
+    if(!data.theme){
+      data.theme = 'default';
+    }
+    
+    snack_class += data.position.vertical+" "+data.position.horizontal;
 
     var snack_html = 
-       ' <div class="'+snack_class+'">'+
+       ' <div class="'+snack_class+'" theme="'+data.theme+'">'+
        ' <div class="wrap">'+
-          '<div class="text">'+snack_message+'</div>'+
-          '<button><i class="material-icons">close</i></button>'+
-          '<button>'+snack_action+'</button>'+
+          '<div class="text">'+data.message+'</div>'+
+          '<button><svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 64 64"><path d="M28.9 31.8L0.6 60.1c-0.8 0.8-0.8 2.1 0 2.8 0.4 0.4 0.9 0.6 1.4 0.6 0.5 0 1-0.2 1.4-0.6l28.5-28.5 28.5 28.5c0.4 0.4 0.9 0.6 1.4 0.6 0.5 0 1-0.2 1.4-0.6 0.8-0.8 0.8-2.1 0-2.8L35.1 31.8 63.4 3.4c0.8-0.8 0.8-2.1 0-2.8 -0.8-0.8-2.1-0.8-2.8 0L32 29.2 3.4 0.6c-0.8-0.8-2.1-0.8-2.8 0 -0.8 0.8-0.8 2.1 0 2.8L28.9 31.8z"/></svg></button>'+
+          '<button>'+data.actionButton+'</button>'+
        '</div>'+
      '</div>';
     $("snackbar").html(snack_html);
-    this.open(time);
+    if(data.theme = "custom" && data.style){
+       this.theme(data.style);
+    }
   }
 
-  open(time){
+  show(time){
     $(".snackbar").addClass("slideUp");
-    //timer
     var timer;
     if(time != null){
        timer = setInterval(function(){
           clearInterval(timer);
           $(".snackbar").addClass("slideDown");
        },time);
-      //if user cancel
       $(".snackbar button:nth-child(2)").click(function(){
          clearInterval(timer);
          $(".snackbar").addClass("slideDown");
@@ -85,5 +58,21 @@ class SnackBar{
     $(".snackbar button:nth-child(3)").click(function(){
       callback(true);
     });
+  }
+  
+  theme(style){
+    $("."+this.class+" > div").css({
+          "background": style.background,
+          "color": style.color
+    });
+    $("."+this.class+" button:nth-child(3)").css({
+           "color": style.buttonColor
+    });
+    $("."+this.class+" button:nth-child(2)").css({
+           "background": style.closeBackground
+    });
+    $("."+this.class+" button svg").css({
+           "fill": style.closeColor
+     });
   }
 }
